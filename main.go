@@ -40,6 +40,7 @@ func (player *Player) Draw(screen *tl.Screen) {
 	screenWidth, screenHeight := screen.Size()
 	x, y := player.entity.Position()
 	player.level.SetOffset(screenWidth / 2 - x, screenHeight / 2 - y)
+	input.SetPosition(x - len(input.Text())/2, y - 1 + screenHeight/2)
 	player.entity.Draw(screen)
 }
 
