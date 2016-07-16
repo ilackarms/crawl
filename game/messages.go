@@ -7,6 +7,8 @@ type MessageType byte
 const (
 	Login = MessageType(0)
 	Input = MessageType(1)
+	Command = MessageType(2)
+	LevelUpdate = MessageType(3)
 )
 
 type LoginMessage struct {
@@ -15,6 +17,10 @@ type LoginMessage struct {
 
 type InputMessage struct {
 	Event tl.Event `json:"Event"`
+}
+
+type CommandMessage struct {
+	Text string `json:"Command"`
 }
 
 type LevelChangeMessage struct {
