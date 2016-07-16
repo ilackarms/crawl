@@ -6,6 +6,7 @@ import (
 	"github.com/emc-advanced-dev/pkg/errors"
 	"log"
 	"github.com/ilackarms/crawl/game"
+	"github.com/ilackarms/crawl/protocol"
 )
 
 type Client struct {
@@ -21,31 +22,35 @@ type PlayerData struct {
 	Level int `json:"Level"`
 }
 
-var clients map[string]*Client
-var levels map[string]tl.Level
+var (
+	clients map[string]*Client
+	levels map[string]tl.Level
+	currentLevel string
+	g *tl.Game
+)
 
 func init() {
 	clients = make(map[string]*Client)
 	levels = make(map[string]tl.Level)
 }
 
-func Start() error {
+func Start() {
 	//start game
-	g := startGame()
+	g = startGame()
 
 	//start multiplayer server
 	if err := startServer(); err != nil {
-		return errors.New("starting server", err)
+		log.Fatal(errors.New("starting server", err))
 	}
 
-	syncLevel := func(level game.Level) {
+	syncLevel := func(level game.Level, ev tl.Event) {
 		for _, client := range clients {
 			if err := func() error {
-				data, err := game.SerializeLevel(level)
+				levelData, err := game.SerializeLevel(level)
 				if err != nil {
 					return errors.New("serializing level", err)
 				}
-				if err := client.conn.Write(data); err != nil {
+				if err := protocol.SendMessage(client.conn, levelData, game.LevelUpdate); err != nil {
 					return errors.New("writing level data to client", err)
 				}
 				return nil
@@ -54,6 +59,22 @@ func Start() error {
 			}
 		}
 	}
+
+	//test - create  & set the current level
+	level1 := game.Level{
+		BaseLevel: tl.NewBaseLevel(tl.Cell{
+			Bg: tl.ColorGreen,
+			Fg: tl.ColorBlack,
+			Ch: 'v',
+		}),
+		AfterTick: syncLevel,
+	}
+	level1.AddEntity(tl.NewRectangle(10, 10, 50, 20, tl.ColorBlue))
+	levels[level1.UUID] = level1
+	currentLevel = level1.UUID
+	g.Screen().SetLevel(levels[currentLevel])
+	select {}
+	//test
 }
 
 func startGame() *tl.Game {
@@ -68,7 +89,7 @@ func startServer() error {
 		return errors.New("starting listener", err)
 	}
 	log.Printf("listening on :9000")
-	go func(){
+	go func() {
 		for {
 			conn, err := l.Accept()
 			if err != nil {
