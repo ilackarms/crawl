@@ -1,18 +1,23 @@
 package game
 
-import tl "github.com/ilackarms/termloop"
+import (
+	tl "github.com/ilackarms/termloop"
+	"log"
+)
 
 //player rep is the server's representation of the player.
 //its position is meant to be updated through input commands sent to the server
 //it should not be drawn and should not do anything on a tick
 type PlayerRep struct {
+	Name string
 	entity *tl.Entity
 	prevX  int
 	prevY  int
 }
 
-func NewPlayerRep(entity *tl.Entity) *PlayerRep {
+func NewPlayerRep(name string, entity *tl.Entity) *PlayerRep {
 	return &PlayerRep{
+		Name: name,
 		entity: entity,
 	}
 }
