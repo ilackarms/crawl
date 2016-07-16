@@ -1,6 +1,6 @@
 package main
 
-import tl "github.com/JoelOtter/termloop"
+import tl "github.com/ilackarms/termloop"
 
 var input *tl.Text
 

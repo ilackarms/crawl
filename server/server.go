@@ -5,6 +5,7 @@ import (
 	tl "github.com/ilackarms/termloop"
 	"github.com/emc-advanced-dev/pkg/errors"
 	"log"
+	"github.com/ilackarms/crawl/game"
 )
 
 type Client struct {
@@ -30,19 +31,35 @@ func init() {
 
 func Start() error {
 	//start game
-	game := startGame()
+	g := startGame()
 
 	//start multiplayer server
 	if err := startServer(); err != nil {
 		return errors.New("starting server", err)
 	}
 
+	syncLevel := func(level game.Level) {
+		for _, client := range clients {
+			if err := func() error {
+				data, err := game.SerializeLevel(level)
+				if err != nil {
+					return errors.New("serializing level", err)
+				}
+				if err := client.conn.Write(data); err != nil {
+					return errors.New("writing level data to client", err)
+				}
+				return nil
+			}(); err != nil {
+				log.Printf("ERROR: failed syncing level with client: %v", err)
+			}
+		}
+	}
 }
 
 func startGame() *tl.Game {
-	game := tl.NewGame()
-	go game.StartServerMode()
-	return game
+	g := tl.NewGame()
+	go g.StartServerMode()
+	return g
 }
 
 func startServer() error {

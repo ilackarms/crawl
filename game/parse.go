@@ -6,7 +6,7 @@ import (
 	"github.com/emc-advanced-dev/pkg/errors"
 )
 
-func SerializeLevel(level tl.BaseLevel) ([]byte, error) {
+func SerializeLevel(level Level) ([]byte, error) {
 	drawables := make([]drawableData, len(level.Entities))
 	for _, entity := range level.Entities {
 		var drawable drawableData
@@ -41,12 +41,15 @@ func SerializeLevel(level tl.BaseLevel) ([]byte, error) {
 	return data, nil
 }
 
-func DeserializeLevel(data []byte) (tl.Level, error) {
+//returned level has no callback
+func DeserializeLevel(data []byte) (Level, error) {
 	var ld levelData
 	if err := json.Unmarshal(data, &ld); err != nil {
 		return nil, errors.New("unmarshalling "+string(data)+" to level data", err)
 	}
-	level := tl.NewBaseLevel(ld.Bg)
+	level := Level{
+		BaseLevel: 	tl.NewBaseLevel(ld.Bg),
+	}
 	level.Offsetx = ld.Offsetx
 	level.Offsety = ld.Offsety
 	level.UUID = ld.UUID
