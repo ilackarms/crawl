@@ -7,19 +7,12 @@ import (
 	"log"
 	"github.com/ilackarms/crawl/game"
 	"github.com/ilackarms/crawl/protocol"
+	"encoding/json"
 )
 
 type Client struct {
-	ID         string `json:"ID"`
-	PlayerData PlayerData `json:"PlayerData"`
+	PlayerRep     game.PlayerRep `json:"PlayerRep"`
 	conn       net.Conn `json:"-"`
-}
-
-type PlayerData struct {
-	Name  string `json:"Name"`
-	X     int `json:"X"`
-	Y     int `json:"Y"`
-	Level int `json:"Level"`
 }
 
 var (
@@ -103,5 +96,50 @@ func startServer() error {
 }
 
 func handle(conn net.Conn) {
-
+	for {
+		var clientUUID string
+		message, messageType, err := protocol.ReadMessage(conn)
+		if err != nil {
+			log.Printf("ERROR: reading client message: %v", err)
+			continue
+		}
+		log.Printf("recieved: %v %v %v", message, messageType, err)
+		switch messageType {
+		case game.Login:
+			var login game.LoginMessage
+			if err := json.Unmarshal(message, &login); err != nil {
+				log.Printf("ERROR: client login: %v", err)
+				continue
+			}
+			playerRep := game.NewPlayerRep(login.Name, tl.NewEntity(1, 1, 1, 1))
+			client := Client{
+				PlayerRep: playerRep,
+				conn: conn,
+			}
+			clientUUID = client.PlayerRep.GetUUID()
+			clients[clientUUID] = client
+		case game.Input:
+			if clientUUID == "" {
+				log.Printf("ERROR: client has not logged in yet")
+				continue
+			}
+			var input game.InputMessage
+			if err := json.Unmarshal(message, &input); err != nil {
+				log.Printf("ERROR: client input: %v", err)
+				continue
+			}
+			clients[clientUUID].PlayerRep.ProcessEvent(input.Event)
+		case game.Command:
+			if clientUUID == "" {
+				log.Printf("ERROR: client has not logged in yet")
+				continue
+			}
+			var command game.CommandMessage
+			if err := json.Unmarshal(message, &command); err != nil {
+				log.Printf("ERROR: client command: %v", err)
+				continue
+			}
+			log.Printf("TODO: handle this command: %v", command.Text)
+		}
+	}
 }
