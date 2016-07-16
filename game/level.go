@@ -4,10 +4,16 @@ import tl "github.com/ilackarms/termloop"
 
 type Level struct {
 	tl.BaseLevel
-	Callback func(level Level)
+	BeforeTick func(level Level, ev tl.Event)
+	AfterTick func(level Level, ev tl.Event)
 }
 
 func (l *Level) Tick(ev tl.Event) {
+	if l.BeforeTick != nil {
+		l.BeforeTick(l, ev)
+	}
 	l.BaseLevel.Tick(ev)
-	l.Callback(l)
+	if l.AfterTick != nil {
+		l.AfterTick(l, ev)
+	}
 }
