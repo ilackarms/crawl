@@ -4,8 +4,8 @@ import tl "github.com/ilackarms/termloop"
 
 type Level struct {
 	tl.BaseLevel
-	BeforeTick func(level Level, ev tl.Event)
-	AfterTick func(level Level, ev tl.Event)
+	BeforeTick func(level Level, ev tl.Event) `json:"-"`
+	AfterTick func(level Level, ev tl.Event) `json:"-"`
 }
 
 func (l *Level) Tick(ev tl.Event) {
