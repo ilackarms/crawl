@@ -26,6 +26,27 @@ func (player *PlayerRep) GetUUID() string {
 	return player.entity.GetUUID()
 }
 
+func (player *PlayerRep) ProcessEvent(event tl.Event) {
+	if event.Type == tl.EventKey {
+		// Is it a keyboard event?
+		x, y := player.entity.Position()
+		switch event.Key { // If so, switch on the pressed key.
+		case tl.KeyArrowRight:
+			player.entity.SetPosition(x + 1, y)
+		case tl.KeyArrowLeft:
+			player.entity.SetPosition(x - 1, y)
+		case tl.KeyArrowUp:
+			player.entity.SetPosition(x, y - 1)
+		case tl.KeyArrowDown:
+			player.entity.SetPosition(x, y + 1)
+		default:
+			log.Printf("ERROR: unknown event %v", event)
+		}
+		return
+	}
+	log.Printf("ERROR: unknown event %v", event)
+}
+
 func (player *PlayerRep) Draw(screen *tl.Screen) {
 	//don't draw on server side
 }
