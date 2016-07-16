@@ -116,7 +116,7 @@ func handle(conn net.Conn) {
 				PlayerRep: playerRep,
 				conn: conn,
 			}
-			clientUUID = client.PlayerRep.GetUUID()
+			clientUUID = client.PlayerRep.SetUUID(login.UUID)
 			levels[currentLevel].AddEntity(playerRep)
 			clients[clientUUID] = client
 		case game.Input:

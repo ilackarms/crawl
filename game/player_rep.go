@@ -22,6 +22,10 @@ func NewPlayerRep(name string, entity *tl.Entity) *PlayerRep {
 	}
 }
 
+func (player *PlayerRep) SetUUID(uuid string) {
+	return player.entity.UUID = uuid
+}
+
 func (player *PlayerRep) GetUUID() string {
 	return player.entity.GetUUID()
 }

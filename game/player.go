@@ -10,6 +10,7 @@ import (
 const commandPrefix = "command: "
 
 type Player struct {
+	Name string
 	entity *tl.Entity
 	prevX  int
 	prevY  int
@@ -18,9 +19,12 @@ type Player struct {
 	server net.Conn
 }
 
-func NewPlayer(entity *tl.Entity) *Player {
+func NewPlayer(name string, entity *tl.Entity, server net.Conn) *Player {
+	entity.SetCell(0, 0, &tl.Cell{Fg: tl.ColorRed, Ch: '옷'})
 	return &Player{
+		Name: name,
 		entity: entity,
+		server: server,
 		text: tl.NewText(0, 0, "", tl.ColorWhite, tl.ColorBlack),
 	}
 }

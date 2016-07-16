@@ -13,6 +13,7 @@ const (
 
 type LoginMessage struct {
 	Name string `json:"Name"`
+	UUID string `json:"UUID"`
 }
 
 type InputMessage struct {
