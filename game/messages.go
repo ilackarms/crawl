@@ -4,6 +4,10 @@ import tl "github.com/ilackarms/termloop"
 
 type MessageType byte
 
+func (t MessageType) GetByte() byte {
+	return byte(t)
+}
+
 const (
 	Login = MessageType(0)
 	Input = MessageType(1)
@@ -30,7 +34,7 @@ type LevelChangeMessage struct {
 
 type levelData struct {
 	UUID string `json:"UUID"`
-	Drawables map[string]drawableData `json:"Drawables"`
+	Drawables []drawableData `json:"Drawables"`
 	Bg       tl.Cell `json:"Bg"`
 	Offsetx  int `json:"Offsetx"`
 	Offsety  int `json:"Offsety"`

@@ -11,7 +11,7 @@ import (
 )
 
 type Client struct {
-	PlayerRep     game.PlayerRep `json:"PlayerRep"`
+	PlayerRep  *game.PlayerRep `json:"PlayerRep"`
 	conn       net.Conn `json:"-"`
 }
 
@@ -43,7 +43,7 @@ func Start() {
 				if err != nil {
 					return errors.New("serializing level", err)
 				}
-				if err := protocol.SendMessage(client.conn, levelData, game.LevelUpdate); err != nil {
+				if err := protocol.SendMessage(client.conn, levelData, game.LevelUpdate.GetByte()); err != nil {
 					return errors.New("writing level data to client", err)
 				}
 				return nil
@@ -54,7 +54,7 @@ func Start() {
 	}
 
 	//test - create  & set the current level
-	level1 := game.Level{
+	level1 := &game.Level{
 		BaseLevel: tl.NewBaseLevel(tl.Cell{
 			Bg: tl.ColorGreen,
 			Fg: tl.ColorBlack,
@@ -105,21 +105,22 @@ func handle(conn net.Conn) {
 		}
 		log.Printf("recieved: %v %v %v", message, messageType, err)
 		switch messageType {
-		case game.Login:
+		case game.Login.GetByte():
 			var login game.LoginMessage
 			if err := json.Unmarshal(message, &login); err != nil {
 				log.Printf("ERROR: client login: %v", err)
 				continue
 			}
 			playerRep := game.NewPlayerRep(login.Name, tl.NewEntity(1, 1, 1, 1))
-			client := Client{
+			client := &Client{
 				PlayerRep: playerRep,
 				conn: conn,
 			}
-			clientUUID = client.PlayerRep.SetUUID(login.UUID)
+			clientUUID = login.UUID
+			client.PlayerRep.SetUUID(login.UUID)
 			levels[currentLevel].AddEntity(playerRep)
 			clients[clientUUID] = client
-		case game.Input:
+		case game.Input.GetByte():
 			if clientUUID == "" {
 				log.Printf("ERROR: client has not logged in yet")
 				continue
@@ -130,7 +131,7 @@ func handle(conn net.Conn) {
 				continue
 			}
 			clients[clientUUID].PlayerRep.ProcessEvent(input.Event)
-		case game.Command:
+		case game.Command.GetByte():
 			if clientUUID == "" {
 				log.Printf("ERROR: client has not logged in yet")
 				continue

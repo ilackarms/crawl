@@ -11,20 +11,20 @@ func SerializeLevel(level Level) (levelData, error) {
 	for _, entity := range level.Entities {
 		var drawable drawableData
 		switch entity.(type) {
-		case tl.Entity:
+		case *tl.Entity:
 			drawable.Type = tl.DrawableType_Entity
-		case tl.Text:
+		case *tl.Text:
 			drawable.Type = tl.DrawableType_Text
-		case tl.Rectangle:
+		case *tl.Rectangle:
 			drawable.Type = tl.DrawableType_Rectangle
-		case PlayerRep:
+		case *PlayerRep:
 			drawable.Type = DrawableType_PlayerRep
 		default:
 			drawable.Type = tl.DrawableType_Custom
 		}
 		data, err := json.Marshal(entity)
 		if err != nil {
-			return nil, errors.New("could not convert entity to json", err)
+			return levelData{}, errors.New("could not convert entity to json", err)
 		}
 		drawable.Data = data
 		drawables = append(drawables, drawable)
@@ -40,9 +40,9 @@ func SerializeLevel(level Level) (levelData, error) {
 }
 
 //returned level has no callback
-func DeserializeLevel(ld levelData) (Level, error) {
-	level := Level{
-		BaseLevel: 	tl.NewBaseLevel(ld.Bg),
+func DeserializeLevel(ld levelData) (*Level, error) {
+	level := &Level{
+		BaseLevel: tl.NewBaseLevel(ld.Bg),
 	}
 	level.Offsetx = ld.Offsetx
 	level.Offsety = ld.Offsety
@@ -51,20 +51,20 @@ func DeserializeLevel(ld levelData) (Level, error) {
 		var d tl.Drawable
 		switch drawable.Type {
 		case tl.DrawableType_Entity:
-			var e tl.Entity
-			if err := json.Unmarshal(drawable.Data, &e); err != nil {
+			var e *tl.Entity
+			if err := json.Unmarshal(drawable.Data, e); err != nil {
 				return nil, errors.New("unmarshalling "+string(drawable.Data)+" to entity", err)
 			}
 			d = e
 		case tl.DrawableType_Rectangle:
-			var r tl.Rectangle
-			if err := json.Unmarshal(drawable.Data, &r); err != nil {
+			var r *tl.Rectangle
+			if err := json.Unmarshal(drawable.Data, r); err != nil {
 				return nil, errors.New("unmarshalling "+string(drawable.Data)+" to rectangle", err)
 			}
 			d = r
 		case tl.DrawableType_Text:
-			var t tl.Text
-			if err := json.Unmarshal(drawable.Data, &t); err != nil {
+			var t *tl.Text
+			if err := json.Unmarshal(drawable.Data, t); err != nil {
 				return nil, errors.New("unmarshalling "+string(drawable.Data)+" to text", err)
 			}
 			d = t

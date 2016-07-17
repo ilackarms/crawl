@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 )
 
-var player game.Player
+var player *game.Player
 
 func Start(name, serverAddr string) {
 	conn, err := net.Dial("tcp", serverAddr)
@@ -22,7 +22,7 @@ func Start(name, serverAddr string) {
 		Name: name,
 		UUID: player.GetUUID(),
 	}
-	if err := protocol.SendMessage(conn, login, game.Login); err != nil {
+	if err := protocol.SendMessage(conn, login, game.Login.GetByte()); err != nil {
 		log.Fatalf("failed logging in: %v", err)
 	}
 	g := tl.NewGame()
@@ -33,7 +33,7 @@ func Start(name, serverAddr string) {
 			log.Fatalf("failed to read message from server: %v", err)
 		}
 		switch messageType {
-		case game.LevelUpdate:
+		case game.LevelUpdate.GetByte():
 			var levelUpdate game.LevelChangeMessage
 			if err := json.Unmarshal(message, &levelUpdate); err != nil {
 				log.Fatalf("ERROR: unmarshalling level update: %v", err)
@@ -46,7 +46,7 @@ func Start(name, serverAddr string) {
 			for _, entity := range level.Entities {
 				//swap out player rep for player on local end
 				if entity.GetUUID() == player.GetUUID() {
-					playerRep, ok := entity.(game.PlayerRep)
+					playerRep, ok := entity.(*game.PlayerRep)
 					if !ok {
 						log.Fatalf("ERROR: same uuid but not a player. what?")
 					}

@@ -14,7 +14,7 @@ type Player struct {
 	entity *tl.Entity
 	prevX  int
 	prevY  int
-	level  *tl.BaseLevel
+	level  *Level
 	text *tl.Text
 	server net.Conn
 }
@@ -29,7 +29,7 @@ func NewPlayer(name string, entity *tl.Entity, server net.Conn) *Player {
 	}
 }
 
-func (player *Player) SetLevel(level *tl.BaseLevel) {
+func (player *Player) SetLevel(level *Level) {
 	player.level = level
 	level.AddEntity(player.text)
 }
@@ -48,7 +48,7 @@ func (player *Player) Draw(screen *tl.Screen) {
 	screenWidth, screenHeight := screen.Size()
 	x, y := player.entity.Position()
 	player.level.SetOffset(screenWidth / 2 - x, screenHeight / 2 - y)
-	player.text.SetPosition(x - len(player.text.Text())/2, y - 1 + screenHeight/2)
+	player.text.SetPosition(x - len(player.text.GetText())/2, y - 1 + screenHeight/2)
 	player.entity.Draw(screen)
 }
 
@@ -57,7 +57,7 @@ func (player *Player) Tick(event tl.Event) {
 	if event.Type == tl.EventKey {
 		// Is it a keyboard event?
 		//x, y := player.entity.Position()
-		currentText := player.text.Text()
+		currentText := player.text.GetText()
 		switch event.Key { // If so, switch on the pressed key.
 		case tl.KeyArrowRight:
 			//player.entity.SetPosition(x + 1, y)
@@ -85,19 +85,19 @@ func (player *Player) Tick(event tl.Event) {
 				player.text.SetText(currentText[:len(currentText)-1])
 			}
 		default:
-			player.text.SetText(player.text.Text()+string(event.Ch))
+			player.text.SetText(player.text.GetText()+string(event.Ch))
 		}
 	}
 }
 
 func (player *Player) sendEvent(event tl.Event) error {
 	message := InputMessage{Event: event}
-	return protocol.SendMessage(player.server, message, Input)
+	return protocol.SendMessage(player.server, message, Input.GetByte())
 }
 
 func (player *Player) sendCommand(command string) error {
-	message := CommandMessage{Text: Command}
-	return protocol.SendMessage(player.server, message, Input)
+	message := CommandMessage{Text: command}
+	return protocol.SendMessage(player.server, message, Command.GetByte())
 }
 
 func (player *Player) Size() (int, int) {

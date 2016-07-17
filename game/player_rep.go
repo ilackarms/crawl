@@ -25,7 +25,7 @@ func NewPlayerRep(name string, entity *tl.Entity) *PlayerRep {
 }
 
 func (player *PlayerRep) SetUUID(uuid string) {
-	return player.entity.UUID = uuid
+	player.entity.UUID = uuid
 }
 
 func (player *PlayerRep) GetUUID() string {
@@ -78,9 +78,9 @@ func (player *PlayerRep) Collide(collision tl.Physical) {
 
 const DrawableType_PlayerRep = tl.DrawableType("DrawableType_PlayerRep")
 
-func DeserializePlayerRep(data []byte) (PlayerRep, error) {
-	var playerRep PlayerRep
-	if err := json.Unmarshal(data, &playerRep); err != nil {
+func DeserializePlayerRep(data []byte) (*PlayerRep, error) {
+	var playerRep *PlayerRep
+	if err := json.Unmarshal(data, playerRep); err != nil {
 		return nil, errors.New("unmarshalling "+string(data)+" to playerRep", err)
 	}
 	return playerRep, nil

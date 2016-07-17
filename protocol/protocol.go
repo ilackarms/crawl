@@ -7,7 +7,6 @@ import (
 	"net"
 	"log"
 	"fmt"
-	"github.com/ilackarms/crawl/game"
 )
 
 //Generate a Crawl TCP Protocol Packet from json object
@@ -19,7 +18,7 @@ func generatePacket(message interface{}, messageType byte) ([]byte, error) {
 	size := uint32(len(data))
 	bs := make([]byte, 4)
 	binary.LittleEndian.PutUint32(bs, size)
-	return append(bs, messageType, data...), nil
+	return append(append(bs, messageType), data...), nil
 }
 
 //Send Message on TCP Connection
@@ -37,7 +36,7 @@ func SendMessage(conn net.Conn, message interface{}, messageType byte) error {
 }
 
 //Read Message on TCP Connection. Returns raw json string, message type, and error or nil
-func ReadMessage(conn net.Conn) ([]byte, game.MessageType, error) {
+func ReadMessage(conn net.Conn) ([]byte, byte, error) {
 	bs := make([]byte, 4)
 	if _, err := conn.Read(bs); err != nil {
 		return nil, byte(0), errors.New("packet size from connection", err)
@@ -51,5 +50,5 @@ func ReadMessage(conn net.Conn) ([]byte, game.MessageType, error) {
 	if _, err := conn.Read(message); err != nil {
 		return nil, byte(0), errors.New(fmt.Sprintf("reading message of size %v from connection", size), err)
 	}
-	return message, game.MessageType(messageType[0]), nil
+	return message, messageType[0], nil
 }
