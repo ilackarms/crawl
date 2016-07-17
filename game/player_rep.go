@@ -37,6 +37,8 @@ func (player *PlayerRep) ProcessEvent(event tl.Event) {
 	if event.Type == tl.EventKey {
 		// Is it a keyboard event?
 		x, y := player.Entity.Position()
+		player.PrevX = x
+		player.PrevY = y
 		switch event.Key { // If so, switch on the pressed key.
 		case tl.KeyArrowRight:
 			player.Entity.SetPosition(x + 1, y)
