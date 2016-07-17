@@ -6,6 +6,7 @@ import (
 	"github.com/emc-advanced-dev/pkg/errors"
 	"net"
 	"fmt"
+	"log"
 )
 
 //Generate a Crawl TCP Protocol Packet from json object
@@ -17,7 +18,11 @@ func generatePacket(message interface{}, messageType byte) ([]byte, error) {
 	size := uint32(len(data))
 	bs := make([]byte, 4)
 	binary.LittleEndian.PutUint32(bs, size)
-	return append(append(bs, messageType), data...), nil
+	packet := append(append(bs, messageType), data...)
+	if false {
+		log.Printf("packet: %s", packet)
+	}
+	return packet, nil
 }
 
 //Send Message on TCP Connection
