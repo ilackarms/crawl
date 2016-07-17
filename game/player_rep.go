@@ -3,6 +3,8 @@ package game
 import (
 	tl "github.com/ilackarms/termloop"
 	"log"
+	"github.com/emc-advanced-dev/pkg/errors"
+	"encoding/json"
 )
 
 //player rep is the server's representation of the player.
@@ -72,4 +74,14 @@ func (player *PlayerRep) Collide(collision tl.Physical) {
 	if _, ok := collision.(*tl.Rectangle); ok {
 		player.entity.SetPosition(player.prevX, player.prevY)
 	}
+}
+
+const DrawableType_PlayerRep = tl.DrawableType("DrawableType_PlayerRep")
+
+func DeserializePlayerRep(data []byte) (PlayerRep, error) {
+	var playerRep PlayerRep
+	if err := json.Unmarshal(data, &playerRep); err != nil {
+		return nil, errors.New("unmarshalling "+string(data)+" to playerRep", err)
+	}
+	return playerRep, nil
 }

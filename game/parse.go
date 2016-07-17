@@ -17,6 +17,8 @@ func SerializeLevel(level Level) (levelData, error) {
 			drawable.Type = tl.DrawableType_Text
 		case tl.Rectangle:
 			drawable.Type = tl.DrawableType_Rectangle
+		case PlayerRep:
+			drawable.Type = DrawableType_PlayerRep
 		default:
 			drawable.Type = tl.DrawableType_Custom
 		}
@@ -46,30 +48,36 @@ func DeserializeLevel(ld levelData) (Level, error) {
 	level.Offsety = ld.Offsety
 	level.UUID = ld.UUID
 	for _, drawable := range ld.Drawables {
-		var entity tl.Drawable
+		var d tl.Drawable
 		switch drawable.Type {
 		case tl.DrawableType_Entity:
 			var e tl.Entity
 			if err := json.Unmarshal(drawable.Data, &e); err != nil {
 				return nil, errors.New("unmarshalling "+string(drawable.Data)+" to entity", err)
 			}
-			entity = e
+			d = e
 		case tl.DrawableType_Rectangle:
 			var r tl.Rectangle
 			if err := json.Unmarshal(drawable.Data, &r); err != nil {
 				return nil, errors.New("unmarshalling "+string(drawable.Data)+" to rectangle", err)
 			}
-			entity = r
+			d = r
 		case tl.DrawableType_Text:
 			var t tl.Text
 			if err := json.Unmarshal(drawable.Data, &t); err != nil {
 				return nil, errors.New("unmarshalling "+string(drawable.Data)+" to text", err)
 			}
-			entity = t
-		case tl.DrawableType_Custom:
+			d = t
+		case DrawableType_PlayerRep:
+			playerRep, err := DeserializePlayerRep(drawable.Data)
+			if err != nil {
+				return nil, err
+			}
+			d = playerRep
+		default:
 			return nil, errors.New("unsupported drawable type: "+string(drawable.Data), nil)
 		}
-		level.AddEntity(entity)
+		level.AddEntity(d)
 	}
 	return level, nil
 }

@@ -31,6 +31,11 @@ func NewPlayer(name string, entity *tl.Entity, server net.Conn) *Player {
 
 func (player *Player) SetLevel(level *tl.BaseLevel) {
 	player.level = level
+	level.AddEntity(player.text)
+}
+
+func (player *Player) SetPosition(x, y int) {
+	player.entity.SetPosition(x, y)
 }
 
 func (player *Player) GetUUID() string {
