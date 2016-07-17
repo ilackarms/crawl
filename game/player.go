@@ -54,22 +54,27 @@ func (player *Player) Draw(screen *tl.Screen) {
 
 func (player *Player) Tick(event tl.Event) {
 	player.prevX, player.prevY = player.entity.Position()
+	if event.Type == tl.EventMouse {
+		switch event.Key {
+		case tl.MouseLeft:
+			fallthrough
+		case tl.MouseRight:
+			fallthrough
+		case tl.MouseRelease:
+			player.sendEvent(event)
+		}
+	}
 	if event.Type == tl.EventKey {
 		// Is it a keyboard event?
-		//x, y := player.entity.Position()
 		currentText := player.Text.GetText()
 		switch event.Key { // If so, switch on the pressed key.
 		case tl.KeyArrowRight:
-			//player.entity.SetPosition(x + 1, y)
 			fallthrough
 		case tl.KeyArrowLeft:
-			//player.entity.SetPosition(x - 1, y)
 			fallthrough
 		case tl.KeyArrowUp:
-			//player.entity.SetPosition(x, y - 1)
 			fallthrough
 		case tl.KeyArrowDown:
-			//player.entity.SetPosition(x, y + 1)
 			player.sendEvent(event)
 		case tl.KeyEnter:
 			player.sendCommand(strings.TrimPrefix(currentText, commandPrefix))

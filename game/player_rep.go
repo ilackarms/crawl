@@ -15,6 +15,7 @@ type PlayerRep struct {
 	Entity *tl.Entity `json:"Entity"`
 	PrevX  int `json:"PrevX"`
 	PrevY  int `json:"PrevY"`
+	currentCommand string `json:"-"`
 }
 
 func NewPlayerRep(name string, entity *tl.Entity) *PlayerRep {
@@ -33,7 +34,31 @@ func (player *PlayerRep) GetUUID() string {
 	return player.Entity.GetUUID()
 }
 
-func (player *PlayerRep) ProcessEvent(event tl.Event) {
+func (player *PlayerRep) ProcessCommand(command CommandMessage) {
+	player.currentCommand = command.Text
+}
+
+func (player *PlayerRep) targetCommand(x, y int) {
+	log.Printf("TODO: Processing command %v at target %v,%v", player.currentCommand, x, y)
+	player.currentCommand = ""
+}
+
+func (player *PlayerRep) ProcessInput(input InputMessage) {
+	event := input.Event
+	if event.Type == tl.EventMouse {
+		switch event.Key { // If so, switch on the pressed key.
+		case tl.MouseLeft:
+			fallthrough
+		case tl.MouseRelease:
+			player.targetCommand(event.MouseX, event.MouseY)
+		case tl.MouseRight:
+			log.Printf("Command %v cancelled", player.currentCommand)
+			player.currentCommand = ""
+		default:
+			log.Fatalf("ERROR: unknown event %v", event)
+		}
+		return
+	}
 	if event.Type == tl.EventKey {
 		// Is it a keyboard event?
 		x, y := player.Entity.Position()

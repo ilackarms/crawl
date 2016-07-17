@@ -128,7 +128,7 @@ func handle(conn net.Conn) {
 			if err := json.Unmarshal(message, &input); err != nil {
 				log.Fatalf("ERROR: client input: %v", err)
 			}
-			clients[clientUUID].PlayerRep.ProcessEvent(input.Event)
+			clients[clientUUID].PlayerRep.ProcessInput(input)
 		case game.Command.GetByte():
 			if clientUUID == "" {
 				log.Fatalf("ERROR: client has not logged in yet")
@@ -137,7 +137,7 @@ func handle(conn net.Conn) {
 			if err := json.Unmarshal(message, &command); err != nil {
 				log.Fatalf("ERROR: client command: %v", err)
 			}
-			log.Printf("TODO: handle this command: %v", command.Text)
+			clients[clientUUID].PlayerRep.ProcessCommand(command)
 		}
 	}
 }
