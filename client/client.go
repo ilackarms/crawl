@@ -55,6 +55,10 @@ func Start(name, serverAddr string) {
 					}
 					player.SetPosition(playerRep.Position())
 					player.SetLevel(level)
+					screenWidth, screenHeight := g.Screen().Size()
+					x, y := player.Position()
+					level.SetOffset(screenWidth / 2 - x, screenHeight / 2 - y)
+					player.Text.SetPosition(x - len(player.Text.GetText())/2, y - 1 + screenHeight/2)
 					level.RemoveEntity(playerRep)
 					level.AddEntity(player)
 					playerFound = true
