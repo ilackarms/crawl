@@ -9,10 +9,10 @@ func (t MessageType) GetByte() byte {
 }
 
 const (
-	Login = MessageType(0)
-	Input = MessageType(1)
-	Command = MessageType(2)
-	LevelUpdate = MessageType(3)
+	Login = MessageType(1)
+	Input = MessageType(2)
+	Command = MessageType(3)
+	LevelUpdate = MessageType(4)
 )
 
 type LoginMessage struct {

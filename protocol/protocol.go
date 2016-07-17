@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"github.com/emc-advanced-dev/pkg/errors"
 	"net"
-	"log"
 	"fmt"
 )
 
@@ -27,11 +26,9 @@ func SendMessage(conn net.Conn, message interface{}, messageType byte) error {
 	if err != nil {
 		return errors.New("generating packet", err)
 	}
-	n, err := conn.Write(packet)
-	if err != nil {
+	if _, err := conn.Write(packet); err != nil {
 		return errors.New("sending packet", err)
 	}
-	log.Printf("%v bytes sent to %v", n, conn.RemoteAddr().String())
 	return nil
 }
 

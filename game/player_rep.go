@@ -18,6 +18,7 @@ type PlayerRep struct {
 }
 
 func NewPlayerRep(name string, entity *tl.Entity) *PlayerRep {
+	entity.SetCell(0, 0, &tl.Cell{Fg: tl.ColorRed, Ch: '옷'})
 	return &PlayerRep{
 		Name: name,
 		Entity: entity,
@@ -54,7 +55,7 @@ func (player *PlayerRep) ProcessEvent(event tl.Event) {
 }
 
 func (player *PlayerRep) Draw(screen *tl.Screen) {
-	//don't draw on server side
+	player.Entity.Draw(screen)
 }
 
 func (player *PlayerRep) Tick(event tl.Event) {

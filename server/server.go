@@ -95,8 +95,8 @@ func startServer() error {
 }
 
 func handle(conn net.Conn) {
+	var clientUUID string
 	for {
-		var clientUUID string
 		message, messageType, err := protocol.ReadMessage(conn)
 		if err != nil {
 			log.Fatalf("ERROR: reading client message: %v", err)
