@@ -37,19 +37,22 @@ func Start() {
 	}
 
 	syncLevel := func(level *game.Level, ev tl.Event) {
-		for _, client := range clients {
-			if err := func() error {
-				levelData, err := game.SerializeLevel(*level)
-				if err != nil {
-					return errors.New("serializing level", err)
+		if level.Diff() {
+			for _, client := range clients {
+				if err := func() error {
+					levelData, err := game.SerializeLevel(*level)
+					if err != nil {
+						return errors.New("serializing level", err)
+					}
+					if err := protocol.SendMessage(client.conn, game.LevelChangeMessage{LevelData: levelData}, game.LevelUpdate.GetByte()); err != nil {
+						return errors.New("writing level data to client", err)
+					}
+					return nil
+				}(); err != nil {
+					log.Fatalf("ERROR: failed syncing level with client: %v", err)
 				}
-				if err := protocol.SendMessage(client.conn, game.LevelChangeMessage{LevelData: levelData}, game.LevelUpdate.GetByte()); err != nil {
-					return errors.New("writing level data to client", err)
-				}
-				return nil
-			}(); err != nil {
-				log.Fatalf("ERROR: failed syncing level with client: %v", err)
 			}
+			level.CacheLevel()
 		}
 	}
 
