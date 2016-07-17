@@ -43,19 +43,17 @@ func (player *PlayerRep) targetCommand(x, y int) {
 	player.currentCommand = ""
 }
 
+func (player *PlayerRep) cancelCommand() {
+	log.Printf("TODO: Canceling command %v", player.currentCommand)
+	player.currentCommand = ""
+}
+
 func (player *PlayerRep) ProcessInput(input InputMessage) {
 	event := input.Event
 	if event.Type == tl.EventMouse {
 		switch event.Key { // If so, switch on the pressed key.
-		case tl.MouseLeft:
-			fallthrough
 		case tl.MouseRelease:
 			player.targetCommand(event.MouseX, event.MouseY)
-		case tl.MouseRight:
-			log.Printf("Command %v cancelled", player.currentCommand)
-			player.currentCommand = ""
-		default:
-			log.Fatalf("ERROR: unknown event %v", event)
 		}
 		return
 	}
@@ -73,6 +71,8 @@ func (player *PlayerRep) ProcessInput(input InputMessage) {
 			player.Entity.SetPosition(x, y - 1)
 		case tl.KeyArrowDown:
 			player.Entity.SetPosition(x, y + 1)
+		case tl.KeyEsc:
+			player.cancelCommand()
 		default:
 			log.Fatalf("ERROR: unknown event %v", event)
 		}

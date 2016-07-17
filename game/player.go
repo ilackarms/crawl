@@ -56,10 +56,6 @@ func (player *Player) Tick(event tl.Event) {
 	player.prevX, player.prevY = player.entity.Position()
 	if event.Type == tl.EventMouse {
 		switch event.Key {
-		case tl.MouseLeft:
-			fallthrough
-		case tl.MouseRight:
-			fallthrough
 		case tl.MouseRelease:
 			player.sendEvent(event)
 		}
@@ -68,6 +64,8 @@ func (player *Player) Tick(event tl.Event) {
 		// Is it a keyboard event?
 		currentText := player.Text.GetText()
 		switch event.Key { // If so, switch on the pressed key.
+		case tl.KeyEsc:
+			fallthrough
 		case tl.KeyArrowRight:
 			fallthrough
 		case tl.KeyArrowLeft:
