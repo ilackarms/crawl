@@ -43,7 +43,10 @@ func Start(name, serverAddr string) {
 				log.Fatalf("ERROR: deserializing level: %v", err)
 			}
 			var playerFound bool
+			//log.Printf("player uuid: %v", player.GetUUID())
+			//log.Printf("level data: %v", levelUpdate.LevelData)
 			for _, entity := range level.Entities {
+				//log.Printf("entity uuid: %v", entity.GetUUID())
 				//swap out player rep for player on local end
 				if entity.GetUUID() == player.GetUUID() {
 					playerRep, ok := entity.(*game.PlayerRep)
@@ -59,6 +62,7 @@ func Start(name, serverAddr string) {
 				}
 			}
 			if !playerFound {
+				log.Printf("level received: %v", string(message))
 				log.Fatalf("ERROR: player not found in level!")
 			}
 			g.Screen().SetLevel(level)

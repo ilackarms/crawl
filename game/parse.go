@@ -8,7 +8,7 @@ import (
 
 func SerializeLevel(level Level) (levelData, error) {
 	drawables := make([]drawableData, len(level.Entities))
-	for _, entity := range level.Entities {
+	for i, entity := range level.Entities {
 		var drawable drawableData
 		switch entity.(type) {
 		case *tl.Entity:
@@ -27,7 +27,7 @@ func SerializeLevel(level Level) (levelData, error) {
 			return levelData{}, errors.New("could not convert entity to json", err)
 		}
 		drawable.Data = data
-		drawables = append(drawables, drawable)
+		drawables[i] = drawable
 	}
 	ld := levelData{
 		UUID: level.UUID,
@@ -41,6 +41,7 @@ func SerializeLevel(level Level) (levelData, error) {
 
 //returned level has no callback
 func DeserializeLevel(ld levelData) (*Level, error) {
+	//log.Printf("deserializing %v", ld)
 	level := &Level{
 		BaseLevel: tl.NewBaseLevel(ld.Bg),
 	}
@@ -48,26 +49,27 @@ func DeserializeLevel(ld levelData) (*Level, error) {
 	level.Offsety = ld.Offsety
 	level.UUID = ld.UUID
 	for _, drawable := range ld.Drawables {
+		//log.Printf("deserializing drawable: %v %v", drawable.Type, drawable.Data)
 		var d tl.Drawable
 		switch drawable.Type {
 		case tl.DrawableType_Entity:
-			var e *tl.Entity
-			if err := json.Unmarshal(drawable.Data, e); err != nil {
+			var e tl.Entity
+			if err := json.Unmarshal(drawable.Data, &e); err != nil {
 				return nil, errors.New("unmarshalling "+string(drawable.Data)+" to entity", err)
 			}
-			d = e
+			d = &e
 		case tl.DrawableType_Rectangle:
-			var r *tl.Rectangle
-			if err := json.Unmarshal(drawable.Data, r); err != nil {
+			var r tl.Rectangle
+			if err := json.Unmarshal(drawable.Data, &r); err != nil {
 				return nil, errors.New("unmarshalling "+string(drawable.Data)+" to rectangle", err)
 			}
-			d = r
+			d = &r
 		case tl.DrawableType_Text:
-			var t *tl.Text
-			if err := json.Unmarshal(drawable.Data, t); err != nil {
+			var t tl.Text
+			if err := json.Unmarshal(drawable.Data, &t); err != nil {
 				return nil, errors.New("unmarshalling "+string(drawable.Data)+" to text", err)
 			}
-			d = t
+			d = &t
 		case DrawableType_PlayerRep:
 			playerRep, err := DeserializePlayerRep(drawable.Data)
 			if err != nil {
@@ -75,7 +77,7 @@ func DeserializeLevel(ld levelData) (*Level, error) {
 			}
 			d = playerRep
 		default:
-			return nil, errors.New("unsupported drawable type: "+string(drawable.Data), nil)
+			return nil, errors.New("unsupported drawable type: "+string(drawable.Data)+" "+string(drawable.Type), nil)
 		}
 		level.AddEntity(d)
 	}

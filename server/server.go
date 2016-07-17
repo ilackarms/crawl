@@ -36,19 +36,19 @@ func Start() {
 		log.Fatal(errors.New("starting server", err))
 	}
 
-	syncLevel := func(level game.Level, ev tl.Event) {
+	syncLevel := func(level *game.Level, ev tl.Event) {
 		for _, client := range clients {
 			if err := func() error {
-				levelData, err := game.SerializeLevel(level)
+				levelData, err := game.SerializeLevel(*level)
 				if err != nil {
 					return errors.New("serializing level", err)
 				}
-				if err := protocol.SendMessage(client.conn, levelData, game.LevelUpdate.GetByte()); err != nil {
+				if err := protocol.SendMessage(client.conn, game.LevelChangeMessage{LevelData: levelData}, game.LevelUpdate.GetByte()); err != nil {
 					return errors.New("writing level data to client", err)
 				}
 				return nil
 			}(); err != nil {
-				log.Printf("ERROR: failed syncing level with client: %v", err)
+				log.Fatalf("ERROR: failed syncing level with client: %v", err)
 			}
 		}
 	}
@@ -86,8 +86,7 @@ func startServer() error {
 		for {
 			conn, err := l.Accept()
 			if err != nil {
-				log.Printf("ERROR: failed to accept connection: %v", err)
-				continue
+				log.Fatalf("ERROR: failed to accept connection: %v", err)
 			}
 			go handle(conn)
 		}
@@ -100,16 +99,14 @@ func handle(conn net.Conn) {
 		var clientUUID string
 		message, messageType, err := protocol.ReadMessage(conn)
 		if err != nil {
-			log.Printf("ERROR: reading client message: %v", err)
-			continue
+			log.Fatalf("ERROR: reading client message: %v", err)
 		}
-		log.Printf("recieved: %v %v %v", message, messageType, err)
+		log.Printf("recieved: %v %v %v", string(message), messageType, err)
 		switch messageType {
 		case game.Login.GetByte():
 			var login game.LoginMessage
 			if err := json.Unmarshal(message, &login); err != nil {
-				log.Printf("ERROR: client login: %v", err)
-				continue
+				log.Fatalf("ERROR: client login: %v", err)
 			}
 			playerRep := game.NewPlayerRep(login.Name, tl.NewEntity(1, 1, 1, 1))
 			client := &Client{
@@ -122,24 +119,20 @@ func handle(conn net.Conn) {
 			clients[clientUUID] = client
 		case game.Input.GetByte():
 			if clientUUID == "" {
-				log.Printf("ERROR: client has not logged in yet")
-				continue
+				log.Fatalf("ERROR: client has not logged in yet")
 			}
 			var input game.InputMessage
 			if err := json.Unmarshal(message, &input); err != nil {
-				log.Printf("ERROR: client input: %v", err)
-				continue
+				log.Fatalf("ERROR: client input: %v", err)
 			}
 			clients[clientUUID].PlayerRep.ProcessEvent(input.Event)
 		case game.Command.GetByte():
 			if clientUUID == "" {
-				log.Printf("ERROR: client has not logged in yet")
-				continue
+				log.Fatalf("ERROR: client has not logged in yet")
 			}
 			var command game.CommandMessage
 			if err := json.Unmarshal(message, &command); err != nil {
-				log.Printf("ERROR: client command: %v", err)
-				continue
+				log.Fatalf("ERROR: client command: %v", err)
 			}
 			log.Printf("TODO: handle this command: %v", command.Text)
 		}

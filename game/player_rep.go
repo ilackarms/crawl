@@ -11,46 +11,46 @@ import (
 //its position is meant to be updated through input commands sent to the server
 //it should not be drawn and should not do anything on a tick
 type PlayerRep struct {
-	Name string
-	entity *tl.Entity
-	prevX  int
-	prevY  int
+	Name   string `json:"Name"`
+	Entity *tl.Entity `json:"Entity"`
+	PrevX  int `json:"PrevX"`
+	PrevY  int `json:"PrevY"`
 }
 
 func NewPlayerRep(name string, entity *tl.Entity) *PlayerRep {
 	return &PlayerRep{
 		Name: name,
-		entity: entity,
+		Entity: entity,
 	}
 }
 
 func (player *PlayerRep) SetUUID(uuid string) {
-	player.entity.UUID = uuid
+	player.Entity.UUID = uuid
 }
 
 func (player *PlayerRep) GetUUID() string {
-	return player.entity.GetUUID()
+	return player.Entity.GetUUID()
 }
 
 func (player *PlayerRep) ProcessEvent(event tl.Event) {
 	if event.Type == tl.EventKey {
 		// Is it a keyboard event?
-		x, y := player.entity.Position()
+		x, y := player.Entity.Position()
 		switch event.Key { // If so, switch on the pressed key.
 		case tl.KeyArrowRight:
-			player.entity.SetPosition(x + 1, y)
+			player.Entity.SetPosition(x + 1, y)
 		case tl.KeyArrowLeft:
-			player.entity.SetPosition(x - 1, y)
+			player.Entity.SetPosition(x - 1, y)
 		case tl.KeyArrowUp:
-			player.entity.SetPosition(x, y - 1)
+			player.Entity.SetPosition(x, y - 1)
 		case tl.KeyArrowDown:
-			player.entity.SetPosition(x, y + 1)
+			player.Entity.SetPosition(x, y + 1)
 		default:
-			log.Printf("ERROR: unknown event %v", event)
+			log.Fatalf("ERROR: unknown event %v", event)
 		}
 		return
 	}
-	log.Printf("ERROR: unknown event %v", event)
+	log.Fatalf("ERROR: unknown event %v", event)
 }
 
 func (player *PlayerRep) Draw(screen *tl.Screen) {
@@ -58,30 +58,30 @@ func (player *PlayerRep) Draw(screen *tl.Screen) {
 }
 
 func (player *PlayerRep) Tick(event tl.Event) {
-	player.prevX, player.prevY = player.entity.Position()
+	player.PrevX, player.PrevY = player.Entity.Position()
 }
 
 func (player *PlayerRep) Size() (int, int) {
-	return player.entity.Size()
+	return player.Entity.Size()
 }
 
 func (player *PlayerRep) Position() (int, int) {
-	return player.entity.Position()
+	return player.Entity.Position()
 }
 
 func (player *PlayerRep) Collide(collision tl.Physical) {
 	// Check if it's a Rectangle we're colliding with
 	if _, ok := collision.(*tl.Rectangle); ok {
-		player.entity.SetPosition(player.prevX, player.prevY)
+		player.Entity.SetPosition(player.PrevX, player.PrevY)
 	}
 }
 
 const DrawableType_PlayerRep = tl.DrawableType("DrawableType_PlayerRep")
 
 func DeserializePlayerRep(data []byte) (*PlayerRep, error) {
-	var playerRep *PlayerRep
-	if err := json.Unmarshal(data, playerRep); err != nil {
+	var playerRep PlayerRep
+	if err := json.Unmarshal(data, &playerRep); err != nil {
 		return nil, errors.New("unmarshalling "+string(data)+" to playerRep", err)
 	}
-	return playerRep, nil
+	return &playerRep, nil
 }
