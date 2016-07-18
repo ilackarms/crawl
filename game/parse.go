@@ -52,6 +52,8 @@ func DeserializeLevel(ld levelData) (*Level, error) {
 		//log.Printf("deserializing drawable: %v %v", drawable.Type, drawable.Data)
 		var d tl.Drawable
 		switch drawable.Type {
+		case tl.DrawableType_Custom:
+			fallthrough
 		case tl.DrawableType_Entity:
 			var e tl.Entity
 			if err := json.Unmarshal(drawable.Data, &e); err != nil {

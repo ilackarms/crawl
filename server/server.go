@@ -8,6 +8,7 @@ import (
 	"github.com/ilackarms/crawl/game"
 	"github.com/ilackarms/crawl/protocol"
 	"encoding/json"
+	"github.com/ilackarms/crawl/game/objects"
 )
 
 type Client struct {
@@ -65,7 +66,8 @@ func Start() {
 		}),
 		AfterTick: syncLevel,
 	}
-	level1.AddEntity(tl.NewRectangle(10, 10, 50, 20, tl.ColorBlue))
+	level1.AddEntity(tl.NewRectangle(20, 20, 30, 30, tl.ColorBlue))
+	level1.AddEntity(objects.NewDungeonEntrance(10, 10, tl.ColorWhite))
 	levels[level1.UUID] = level1
 	currentLevel = level1.UUID
 	g.Screen().SetLevel(levels[currentLevel])

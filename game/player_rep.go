@@ -5,6 +5,7 @@ import (
 	"log"
 	"github.com/emc-advanced-dev/pkg/errors"
 	"encoding/json"
+	"github.com/ilackarms/crawl/game/objects"
 )
 
 //player rep is the server's representation of the player.
@@ -100,6 +101,16 @@ func (player *PlayerRep) Position() (int, int) {
 func (player *PlayerRep) Collide(collision tl.Physical) {
 	// Check if it's a Rectangle we're colliding with
 	if _, ok := collision.(*tl.Rectangle); ok {
+		player.Entity.SetPosition(player.PrevX, player.PrevY)
+	}
+	if trigger, ok := collision.(objects.Trigger); ok {
+		x, y := player.Position()
+		log.Printf("%v,%v trigger position: %v", x, y, trigger.TriggerPositions())
+		for _, triggerPosition := range trigger.TriggerPositions() {
+			if x == triggerPosition.X && y == triggerPosition.Y {
+				return
+			}
+		}
 		player.Entity.SetPosition(player.PrevX, player.PrevY)
 	}
 }
