@@ -36,7 +36,7 @@ func Start(name, serverAddr string) {
 		case game.LevelUpdate.GetByte():
 			var levelUpdate game.LevelChangeMessage
 			if err := json.Unmarshal(message, &levelUpdate); err != nil {
-				log.Fatalf("ERROR: unmarshalling level update: %v", err)
+				continue
 			}
 			level, err := game.DeserializeLevel(levelUpdate.LevelData)
 			if err != nil {

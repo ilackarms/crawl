@@ -66,8 +66,16 @@ func Start() {
 		}),
 		AfterTick: syncLevel,
 	}
+	level2 := &game.Level{
+		BaseLevel: tl.NewBaseLevel(tl.Cell{
+			Bg: tl.ColorGreen,
+			Fg: tl.ColorBlack,
+			Ch: 'v',
+		}),
+		AfterTick: syncLevel,
+	}
 	level1.AddEntity(tl.NewRectangle(20, 20, 30, 30, tl.ColorBlue))
-	level1.AddEntity(objects.NewDungeonEntrance(10, 10, tl.ColorWhite))
+	level1.AddEntity(objects.NewDungeonEntrance(10, 10, tl.ColorWhite, level2.UUID))
 	levels[level1.UUID] = level1
 	currentLevel = level1.UUID
 	g.Screen().SetLevel(levels[currentLevel])

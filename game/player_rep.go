@@ -105,10 +105,11 @@ func (player *PlayerRep) Collide(collision tl.Physical) {
 	}
 	if trigger, ok := collision.(objects.Trigger); ok {
 		x, y := player.Position()
-		log.Printf("%v,%v trigger position: %v", x, y, trigger.TriggerPositions())
 		for _, triggerPosition := range trigger.TriggerPositions() {
 			if x == triggerPosition.X && y == triggerPosition.Y {
-				return
+				if dungeonEntrance, ok := trigger.(*objects.DungeonEntrance); ok {
+					log.Printf("entering %v", dungeonEntrance)
+				}
 			}
 		}
 		player.Entity.SetPosition(player.PrevX, player.PrevY)
