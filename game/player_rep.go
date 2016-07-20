@@ -17,6 +17,7 @@ type PlayerRep struct {
 	PrevX  int `json:"PrevX"`
 	PrevY  int `json:"PrevY"`
 	currentCommand string `json:"-"`
+	iq *inputQueue `json:"-"`
 	w *World `json:"-"`
 }
 
@@ -26,6 +27,7 @@ func NewPlayerRep(name string, entity *tl.Entity, w *World) *PlayerRep {
 		Name: name,
 		Entity: entity,
 		w: w,
+		iq: &inputQueue{},
 	}
 }
 
@@ -52,36 +54,7 @@ func (player *PlayerRep) cancelCommand() {
 }
 
 func (player *PlayerRep) ProcessInput(input InputMessage) {
-	event := input.Event
-	if event.Type == tl.EventMouse {
-		switch event.Key { // If so, switch on the pressed key.
-		case tl.MouseRelease:
-			player.targetCommand(event.MouseX, event.MouseY)
-		}
-		return
-	}
-	if event.Type == tl.EventKey {
-		// Is it a keyboard event?
-		x, y := player.Entity.Position()
-		player.PrevX = x
-		player.PrevY = y
-		switch event.Key { // If so, switch on the pressed key.
-		case tl.KeyArrowRight:
-			player.Entity.SetPosition(x + 1, y)
-		case tl.KeyArrowLeft:
-			player.Entity.SetPosition(x - 1, y)
-		case tl.KeyArrowUp:
-			player.Entity.SetPosition(x, y - 1)
-		case tl.KeyArrowDown:
-			player.Entity.SetPosition(x, y + 1)
-		case tl.KeyEsc:
-			player.cancelCommand()
-		default:
-			log.Fatalf("ERROR: unknown event %v", event)
-		}
-		return
-	}
-	log.Fatalf("ERROR: unknown event %v", event)
+	player.iq.push(input)
 }
 
 func (player *PlayerRep) Draw(screen *tl.Screen) {
@@ -90,6 +63,37 @@ func (player *PlayerRep) Draw(screen *tl.Screen) {
 
 func (player *PlayerRep) Tick(event tl.Event) {
 	player.PrevX, player.PrevY = player.Entity.Position()
+	if player.iq.hasNext() {
+		input := player.iq.pop()
+		event := input.Event
+		if event.Type == tl.EventMouse {
+			switch event.Key { // If so, switch on the pressed key.
+			case tl.MouseRelease:
+				player.targetCommand(event.MouseX, event.MouseY)
+			}
+			return
+		}
+		if event.Type == tl.EventKey {
+			// Is it a keyboard event?
+			x, y := player.Entity.Position()
+			switch event.Key { // If so, switch on the pressed key.
+			case tl.KeyArrowRight:
+				player.Entity.SetPosition(x + 1, y)
+			case tl.KeyArrowLeft:
+				player.Entity.SetPosition(x - 1, y)
+			case tl.KeyArrowUp:
+				player.Entity.SetPosition(x, y - 1)
+			case tl.KeyArrowDown:
+				player.Entity.SetPosition(x, y + 1)
+			case tl.KeyEsc:
+				player.cancelCommand()
+			default:
+				log.Fatalf("ERROR: unknown event %v", event)
+			}
+			return
+		}
+		log.Fatalf("ERROR: unknown event %v", event)
+	}
 }
 
 func (player *PlayerRep) Size() (int, int) {
@@ -128,4 +132,22 @@ func DeserializePlayerRep(data []byte) (*PlayerRep, error) {
 		return nil, errors.New("unmarshalling "+string(data)+" to playerRep", err)
 	}
 	return &playerRep, nil
+}
+
+type inputQueue struct {
+	inputs []*InputMessage
+}
+
+func (iq *inputQueue) push(input InputMessage) {
+	iq.inputs = append(iq.inputs, &input)
+}
+
+func (iq *inputQueue) pop() InputMessage {
+	input := iq.inputs[0]
+	iq.inputs = iq.inputs[1:]
+	return *input
+}
+
+func (iq *inputQueue) hasNext() bool {
+	return len(iq.inputs) > 0
 }
