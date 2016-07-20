@@ -17,13 +17,15 @@ type PlayerRep struct {
 	PrevX  int `json:"PrevX"`
 	PrevY  int `json:"PrevY"`
 	currentCommand string `json:"-"`
+	w *World `json:"-"`
 }
 
-func NewPlayerRep(name string, entity *tl.Entity) *PlayerRep {
+func NewPlayerRep(name string, entity *tl.Entity, w *World) *PlayerRep {
 	entity.SetCell(0, 0, &tl.Cell{Fg: tl.ColorRed, Ch: '옷'})
 	return &PlayerRep{
 		Name: name,
 		Entity: entity,
+		w: w,
 	}
 }
 
@@ -108,7 +110,9 @@ func (player *PlayerRep) Collide(collision tl.Physical) {
 		for _, triggerPosition := range trigger.TriggerPositions() {
 			if x == triggerPosition.X && y == triggerPosition.Y {
 				if dungeonEntrance, ok := trigger.(*objects.DungeonEntrance); ok {
-					log.Printf("entering %v", dungeonEntrance)
+					levelUUID := dungeonEntrance.TargetLevelUUID
+					player.w.Levels[levelUUID].AddEntity(player)
+					player.w.SetLevel(dungeonEntrance.TargetLevelUUID)
 				}
 			}
 		}
