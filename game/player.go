@@ -4,10 +4,7 @@ import (
 	tl "github.com/ilackarms/termloop"
 	"net"
 	"github.com/ilackarms/crawl/protocol"
-	"strings"
 )
-
-const commandPrefix = "command: "
 
 type Player struct {
 	Name   string
@@ -75,15 +72,15 @@ func (player *Player) Tick(event tl.Event) {
 		case tl.KeyArrowDown:
 			player.sendEvent(event)
 		case tl.KeyEnter:
-			player.sendCommand(strings.TrimPrefix(currentText, commandPrefix))
-			player.Text.SetText(commandPrefix)
+			player.sendCommand(currentText)
+			player.Text.SetText("")
 		case tl.KeySpace:
 			player.Text.SetText(currentText+" ")
 		case tl.KeyBackspace:
 			fallthrough
 		case tl.KeyBackspace2:
-			if len(currentText) <= len(commandPrefix) {
-				player.Text.SetText(commandPrefix)
+			if len(currentText) <= 1{
+				player.Text.SetText("")
 			} else {
 				player.Text.SetText(currentText[:len(currentText)-1])
 			}
