@@ -7,13 +7,17 @@ import (
 )
 
 type Player struct {
-	Name   string
-	entity *tl.Entity
-	prevX  int
-	prevY  int
-	level  *Level
-	Text   *tl.Text
-	server net.Conn
+	Name                 string
+	entity               *tl.Entity
+	prevX                int
+	prevY                int
+	level                *Level
+	InputText            *tl.Text
+	descriptionTextLine1 *tl.Text
+	descriptionTextLine2 *tl.Text
+	descriptionTextLine3 *tl.Text
+	description          string
+	server               net.Conn
 }
 
 func NewPlayer(name string, entity *tl.Entity, server net.Conn) *Player {
@@ -22,13 +26,23 @@ func NewPlayer(name string, entity *tl.Entity, server net.Conn) *Player {
 		Name: name,
 		entity: entity,
 		server: server,
-		Text: tl.NewText(0, 0, "", tl.ColorWhite, tl.ColorBlack),
+		InputText: tl.NewText(0, 0, "", tl.ColorWhite, tl.ColorBlack),
+		descriptionTextLine1: tl.NewText(0, 0, "", tl.ColorWhite, tl.RgbTo256Color(0,0,0)),
+		descriptionTextLine2: tl.NewText(0, 0, "", tl.ColorWhite, tl.RgbTo256Color(0,0,0)),
+		descriptionTextLine3: tl.NewText(0, 0, "", tl.ColorWhite, tl.RgbTo256Color(0,0,0)),
 	}
+}
+
+func (player *Player) SetDescription(text string) {
+	player.description = text
 }
 
 func (player *Player) SetLevel(level *Level) {
 	player.level = level
-	level.AddEntity(player.Text)
+	level.AddEntity(player.InputText)
+	level.AddEntity(player.descriptionTextLine1)
+	level.AddEntity(player.descriptionTextLine2)
+	level.AddEntity(player.descriptionTextLine3)
 }
 
 func (player *Player) SetPosition(x, y int) {
@@ -45,8 +59,28 @@ func (player *Player) Draw(screen *tl.Screen) {
 	screenWidth, screenHeight := screen.Size()
 	x, y := player.entity.Position()
 	player.level.SetOffset(screenWidth / 2 - x, screenHeight / 2 - y)
-	player.Text.SetPosition(x - len(player.Text.GetText())/2, y - 1 + screenHeight/2)
+	player.InputText.SetPosition(x - len(player.InputText.GetText())/2, y + screenHeight/2)
+	player.drawDescription(x, y, screenWidth, screenHeight)
 	player.entity.Draw(screen)
+}
+
+func (player *Player) drawDescription(x, y, screenWidth, screenHeight int) {
+	var d1, d2, d3 string
+	d1 = player.description
+	if len(player.description) > screenWidth {
+		d1 = player.description[:screenWidth]
+		d2 = player.description[screenWidth:]
+	}
+	if len(player.description) > screenWidth * 2 {
+		d2 = player.description[screenWidth:screenWidth*2]
+		d3 = player.description[screenWidth*2:]
+	}
+	player.descriptionTextLine1.SetText(d1)
+	player.descriptionTextLine2.SetText(d2)
+	player.descriptionTextLine3.SetText(d3)
+	player.descriptionTextLine1.SetPosition(x - screenWidth/2, y - 3 + screenHeight/2)
+	player.descriptionTextLine2.SetPosition(x - screenWidth/2, y - 2 + screenHeight/2)
+	player.descriptionTextLine3.SetPosition(x - screenWidth/2, y - 1 + screenHeight/2)
 }
 
 func (player *Player) Tick(event tl.Event) {
@@ -59,7 +93,7 @@ func (player *Player) Tick(event tl.Event) {
 	}
 	if event.Type == tl.EventKey {
 		// Is it a keyboard event?
-		currentText := player.Text.GetText()
+		currentText := player.InputText.GetText()
 		switch event.Key { // If so, switch on the pressed key.
 		case tl.KeyEsc:
 			fallthrough
@@ -73,19 +107,19 @@ func (player *Player) Tick(event tl.Event) {
 			player.sendEvent(event)
 		case tl.KeyEnter:
 			player.sendCommand(currentText)
-			player.Text.SetText("")
+			player.InputText.SetText("")
 		case tl.KeySpace:
-			player.Text.SetText(currentText+" ")
+			player.InputText.SetText(currentText+" ")
 		case tl.KeyBackspace:
 			fallthrough
 		case tl.KeyBackspace2:
 			if len(currentText) <= 1{
-				player.Text.SetText("")
+				player.InputText.SetText("")
 			} else {
-				player.Text.SetText(currentText[:len(currentText)-1])
+				player.InputText.SetText(currentText[:len(currentText)-1])
 			}
 		default:
-			player.Text.SetText(player.Text.GetText()+string(event.Ch))
+			player.InputText.SetText(player.InputText.GetText()+string(event.Ch))
 		}
 	}
 }

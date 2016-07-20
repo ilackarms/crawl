@@ -17,6 +17,7 @@ func Start(name, serverAddr string) {
 		log.Fatalf("failed connecting to server: %v", err)
 	}
 	player = game.NewPlayer(name, tl.NewEntity(1, 1, 1, 1), conn)
+	player.SetDescription("this is a description about some things.\nfurthermore, newlines don't work at all. isn't that a funny happenstance coincedence?")
 	//login
 	login := game.LoginMessage{
 		Name: name,
@@ -58,7 +59,7 @@ func Start(name, serverAddr string) {
 					screenWidth, screenHeight := g.Screen().Size()
 					x, y := player.Position()
 					level.SetOffset(screenWidth / 2 - x, screenHeight / 2 - y)
-					player.Text.SetPosition(x - len(player.Text.GetText())/2, y - 1 + screenHeight/2)
+					player.InputText.SetPosition(x - len(player.InputText.GetText())/2, y - 1 + screenHeight/2)
 					level.RemoveEntity(playerRep)
 					level.AddEntity(player)
 					playerFound = true
