@@ -1,8 +1,9 @@
-package levels
+package game
 
 import (
 	"time"
 	"math/rand"
+	tl "github.com/ilackarms/termloop"
 )
 
 type Point struct {
@@ -90,4 +91,28 @@ func generateMaze(w, h int) [][]rune {
 		}
 	}
 	return bordered
+}
+
+func NewDungeonLevel(w, h int) *Level {
+	bg := tl.RgbTo256Color(25, 25, 25)
+	baseLevel := tl.NewBaseLevel(tl.Cell{
+		Bg: bg,
+		Fg: tl.ColorBlack,
+		Ch: ' ',
+	})
+	maze := generateMaze(w, h)
+	for i, row := range maze {
+		for j, el := range row {
+			if el == '*' && !(i == w/2 && j == h/2) {
+				wall := tl.NewRectangle(i - w/2, j - h/2, 1, 1, bg)
+				wall.Ch = '▓'
+				wall.Fg = tl.RgbTo256Color(100, 110, 100)
+				baseLevel.AddEntity(wall)
+			}
+		}
+	}
+
+	return &Level{
+		BaseLevel: baseLevel,
+	}
 }

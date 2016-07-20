@@ -22,6 +22,7 @@ type LoginMessage struct {
 
 type InputMessage struct {
 	Event tl.Event `json:"Event"`
+	CustomEvent func() `json:"-"`
 }
 
 type CommandMessage struct {

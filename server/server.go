@@ -6,7 +6,6 @@ import (
 	"github.com/emc-advanced-dev/pkg/errors"
 	"log"
 	"github.com/ilackarms/crawl/game"
-	"github.com/ilackarms/crawl/game/objects"
 )
 
 var world *game.World
@@ -27,15 +26,25 @@ func Start() {
 			Ch: 'v',
 		}),
 	}
-	level2 := &game.Level{
-		BaseLevel: tl.NewBaseLevel(tl.Cell{
-			Bg: tl.RgbTo256Color(20,20,20),
-			Fg: tl.RgbTo256Color(110,110,110),
-			Ch: '░',
-		}),
-	}
-	level1.AddEntity(tl.NewRectangle(20, 20, 30, 30, tl.ColorBlue))
-	level1.AddEntity(objects.NewDungeonEntrance(10, 10, tl.ColorWhite, level2.UUID))
+	level2 := game.NewDungeonLevel(20, 50)
+	level1.AddEntity(tl.NewRectangle(20, -20, 30, 30, tl.ColorBlue))
+	level1.AddEntity(game.NewTrigger(10, -10,
+		map[game.Position]func(player *game.PlayerRep){
+			game.Position{X: 3, Y: 0}: func(player *game.PlayerRep){
+				levelUUID := level2.UUID
+				player.W.Levels[levelUUID].AddEntity(player)
+				player.Iq.Push(game.InputMessage{
+					CustomEvent: func(){
+						//center player
+						player.PrevX = 0
+						player.PrevY = 0
+						player.Entity.SetPosition(0,0)
+					},
+				})
+				player.W.SetLevel(levelUUID)
+			},
+		},
+		game.DungeonEntrance, tl.ColorWhite))
 
 	world.AddLevel(level1)
 	world.AddLevel(level2)

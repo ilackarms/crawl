@@ -5,20 +5,19 @@ import (
 	"log"
 	"github.com/emc-advanced-dev/pkg/errors"
 	"encoding/json"
-	"github.com/ilackarms/crawl/game/objects"
 )
 
 //player rep is the server's representation of the player.
 //its position is meant to be updated through input commands sent to the server
 //it should not be drawn and should not do anything on a tick
 type PlayerRep struct {
-	Name   string `json:"Name"`
-	Entity *tl.Entity `json:"Entity"`
-	PrevX  int `json:"PrevX"`
-	PrevY  int `json:"PrevY"`
+	Name           string `json:"Name"`
+	Entity         *tl.Entity `json:"Entity"`
+	PrevX          int `json:"PrevX"`
+	PrevY          int `json:"PrevY"`
 	currentCommand string `json:"-"`
-	iq *inputQueue `json:"-"`
-	w *World `json:"-"`
+	Iq             *inputQueue `json:"-"`
+	W              *World `json:"-"`
 }
 
 func NewPlayerRep(name string, entity *tl.Entity, w *World) *PlayerRep {
@@ -26,8 +25,8 @@ func NewPlayerRep(name string, entity *tl.Entity, w *World) *PlayerRep {
 	return &PlayerRep{
 		Name: name,
 		Entity: entity,
-		w: w,
-		iq: &inputQueue{},
+		W: w,
+		Iq: &inputQueue{},
 	}
 }
 
@@ -54,7 +53,7 @@ func (player *PlayerRep) cancelCommand() {
 }
 
 func (player *PlayerRep) ProcessInput(input InputMessage) {
-	player.iq.push(input)
+	player.Iq.Push(input)
 }
 
 func (player *PlayerRep) Draw(screen *tl.Screen) {
@@ -63,8 +62,12 @@ func (player *PlayerRep) Draw(screen *tl.Screen) {
 
 func (player *PlayerRep) Tick(event tl.Event) {
 	player.PrevX, player.PrevY = player.Entity.Position()
-	if player.iq.hasNext() {
-		input := player.iq.pop()
+	if player.Iq.hasNext() {
+		input := player.Iq.pop()
+		if input.CustomEvent != nil {
+			input.CustomEvent()
+			return
+		}
 		event := input.Event
 		if event.Type == tl.EventMouse {
 			switch event.Key { // If so, switch on the pressed key.
@@ -90,6 +93,8 @@ func (player *PlayerRep) Tick(event tl.Event) {
 			default:
 				log.Fatalf("ERROR: unknown event %v", event)
 			}
+			x, y = player.Entity.Position()
+			log.Printf("current position %v,%v", x, y)
 			return
 		}
 		log.Fatalf("ERROR: unknown event %v", event)
@@ -108,19 +113,17 @@ func (player *PlayerRep) Collide(collision tl.Physical) {
 	// Check if it's a Rectangle we're colliding with
 	if _, ok := collision.(*tl.Rectangle); ok {
 		player.Entity.SetPosition(player.PrevX, player.PrevY)
-	}
-	if trigger, ok := collision.(objects.Trigger); ok {
+	} else if trigger, ok := collision.(*Trigger); ok {
 		x, y := player.Position()
-		for _, triggerPosition := range trigger.TriggerPositions() {
-			if x == triggerPosition.X && y == triggerPosition.Y {
-				if dungeonEntrance, ok := trigger.(*objects.DungeonEntrance); ok {
-					levelUUID := dungeonEntrance.TargetLevelUUID
-					player.w.Levels[levelUUID].AddEntity(player)
-					player.w.SetLevel(dungeonEntrance.TargetLevelUUID)
-				}
-			}
+		if callback, ok := trigger.TriggerPositions()[Position{X: x, Y: y}]; ok {
+			log.Printf("trigger: %v,%v", x, y)
+			callback(player)
+		} else {
+			log.Printf("~trigger: %v,%v", x, y)
+			player.Entity.SetPosition(player.PrevX, player.PrevY)
 		}
-		player.Entity.SetPosition(player.PrevX, player.PrevY)
+	} else {
+		//log.Printf("collisino: %v", collision)
 	}
 }
 
@@ -138,7 +141,7 @@ type inputQueue struct {
 	inputs []*InputMessage
 }
 
-func (iq *inputQueue) push(input InputMessage) {
+func (iq *inputQueue) Push(input InputMessage) {
 	iq.inputs = append(iq.inputs, &input)
 }
 

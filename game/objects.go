@@ -1,4 +1,4 @@
-package objects
+package game
 
 import (
 	"strings"
@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	dungeonEntrance = `
+	DungeonEntrance = `
 ▉ ▉ ▉ ▉
 ▉▉▉▉▉▉▉
 ▉░▉░▉░▉
@@ -39,25 +39,4 @@ func graphChars(objString string, color tl.Attr) tl.Canvas {
 		}
 	}
 	return canvas
-}
-
-type DungeonEntrance struct {
-	*tl.Entity
-	TargetLevelUUID string
-}
-
-func NewDungeonEntrance(x, y int, color tl.Attr, targetLevelUUID string) *DungeonEntrance {
-	de := &DungeonEntrance{
-		Entity: tl.NewEntityFromCanvas(x, y, graphChars(dungeonEntrance, color)),
-		TargetLevelUUID: targetLevelUUID,
-	}
-	return de
-}
-
-//location of door relative to position
-func (de *DungeonEntrance) TriggerPositions() []Position {
-	x, y := de.Position()
-	return []Position{
-		Position{X: 3+x, Y: 0+y+de.Height-1},
-	}
 }
