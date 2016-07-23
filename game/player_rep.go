@@ -62,7 +62,7 @@ func (player *PlayerRep) Draw(screen *tl.Screen) {
 
 func (player *PlayerRep) Tick(event tl.Event) {
 	player.PrevX, player.PrevY = player.Entity.Position()
-	if player.Iq.hasNext() {
+	if player.Iq != nil && player.Iq.hasNext() { //iq is always nil on client side
 		input := player.Iq.pop()
 		if input.CustomEvent != nil {
 			input.CustomEvent()
