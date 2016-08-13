@@ -18,6 +18,25 @@ type Player struct {
 	descriptionTextLine3 *tl.Text
 	description          string
 	server               net.Conn
+
+	Stats     Stats
+	Inventory *Inventory
+}
+
+type Stats struct {
+	Str      int `json:"str"`
+	Dex      int `json:"dex"`
+	Int      int `json:"int"`
+	MaxHP    int `json:"max_hp"`
+	CurrHP   int `json:"curr_hp"`
+	MaxMana  int `json:"max_mana"`
+	CurrMana int `json:"curr_mana"`
+	AC       int `json:"ac"`
+	Damage   int `json:"damage"`
+
+	Armor    string   `json:"armor"`
+	Hands    string   `json:"hands"`
+	Backpack []string `json:"backpack"`
 }
 
 func NewPlayer(name string, entity *tl.Entity, server net.Conn) *Player {
@@ -59,6 +78,10 @@ func (player *Player) Draw(screen *tl.Screen) {
 	screenWidth, screenHeight := screen.Size()
 	x, y := player.entity.Position()
 	player.level.SetOffset(screenWidth/2-x, screenHeight/2-y)
+	if player.Inventory != nil {
+		player.Inventory.Draw(screen, screenWidth/2-x, screenHeight/2-y, player.Stats)
+		return
+	}
 	player.InputText.SetPosition(x-len(player.InputText.GetText())/2, y+screenHeight/2)
 	player.drawDescription(x, y, screenWidth, screenHeight)
 	player.entity.Draw(screen)
@@ -96,6 +119,7 @@ func (player *Player) Tick(event tl.Event) {
 		currentText := player.InputText.GetText()
 		switch event.Key { // If so, switch on the pressed key.
 		case tl.KeyEsc:
+			player.Inventory = nil
 			fallthrough
 		case tl.KeyArrowRight:
 			fallthrough
@@ -106,7 +130,9 @@ func (player *Player) Tick(event tl.Event) {
 		case tl.KeyArrowDown:
 			player.sendEvent(event)
 		case tl.KeyEnter:
-			player.sendCommand(currentText)
+			if !player.clientCommand(currentText) {
+				player.sendCommand(currentText)
+			}
 			player.InputText.SetText("")
 		case tl.KeySpace:
 			player.InputText.SetText(currentText + " ")
@@ -147,4 +173,17 @@ func (player *Player) Collide(collision tl.Physical) {
 	if _, ok := collision.(*tl.Rectangle); ok {
 		player.entity.SetPosition(player.prevX, player.prevY)
 	}
+}
+
+func (player *Player) clientCommand(command string) bool {
+	switch command {
+	case "inventory":
+		player.inventoryHandler()
+		return true
+	}
+	return false
+}
+
+func (player *Player) inventoryHandler() {
+	player.Inventory = NewInventory()
 }
