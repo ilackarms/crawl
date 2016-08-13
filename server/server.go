@@ -31,17 +31,20 @@ func Start() {
 	level1.AddEntity(game.NewTrigger(10, -10,
 		map[game.Position]func(player *game.PlayerRep){
 			game.Position{X: 3, Y: 0}: func(player *game.PlayerRep){
-				levelUUID := level2.UUID
-				player.W.Levels[levelUUID].AddEntity(player)
-				player.Iq.Push(game.InputMessage{
-					CustomEvent: func(){
-						//center player
-						player.PrevX = 0
-						player.PrevY = 0
-						player.Entity.SetPosition(0,0)
-					},
-				})
-				player.W.SetLevel(levelUUID)
+				for _, c := range world.Clients {
+					player := c.PlayerRep
+					levelUUID := level2.UUID
+					player.W.Levels[levelUUID].AddEntity(player)
+					player.Iq.Push(game.InputMessage{
+						CustomEvent: func(){
+							//center player
+							player.PrevX = 0
+							player.PrevY = 0
+							player.Entity.SetPosition(0,0)
+						},
+					})
+					player.W.SetLevel(levelUUID)
+				}
 			},
 		},
 		game.DungeonEntrance, tl.ColorWhite))
