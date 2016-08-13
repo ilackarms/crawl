@@ -1,9 +1,9 @@
 package game
 
 import (
-	tl "github.com/ilackarms/termloop"
 	"encoding/json"
 	"github.com/emc-advanced-dev/pkg/errors"
+	tl "github.com/ilackarms/termloop"
 )
 
 func SerializeLevel(level Level) (levelData, error) {
@@ -30,11 +30,11 @@ func SerializeLevel(level Level) (levelData, error) {
 		drawables[i] = drawable
 	}
 	ld := levelData{
-		UUID: level.UUID,
+		UUID:      level.UUID,
 		Drawables: drawables,
-		Bg: level.Bg,
-		Offsetx: level.Offsetx,
-		Offsety: level.Offsety,
+		Bg:        level.Bg,
+		Offsetx:   level.Offsetx,
+		Offsety:   level.Offsety,
 	}
 	return ld, nil
 }

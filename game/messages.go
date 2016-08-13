@@ -9,9 +9,9 @@ func (t MessageType) GetByte() byte {
 }
 
 const (
-	Login = MessageType(1)
-	Input = MessageType(2)
-	Command = MessageType(3)
+	Login       = MessageType(1)
+	Input       = MessageType(2)
+	Command     = MessageType(3)
 	LevelUpdate = MessageType(4)
 )
 
@@ -21,8 +21,8 @@ type LoginMessage struct {
 }
 
 type InputMessage struct {
-	Event tl.Event `json:"Event"`
-	CustomEvent func() `json:"-"`
+	Event       tl.Event `json:"Event"`
+	CustomEvent func()   `json:"-"`
 }
 
 type CommandMessage struct {
@@ -34,14 +34,14 @@ type LevelChangeMessage struct {
 }
 
 type levelData struct {
-	UUID string `json:"UUID"`
+	UUID      string         `json:"UUID"`
 	Drawables []drawableData `json:"Drawables"`
-	Bg       tl.Cell `json:"Bg"`
-	Offsetx  int `json:"Offsetx"`
-	Offsety  int `json:"Offsety"`
+	Bg        tl.Cell        `json:"Bg"`
+	Offsetx   int            `json:"Offsetx"`
+	Offsety   int            `json:"Offsety"`
 }
 
 type drawableData struct {
 	Type tl.DrawableType `json:"Type"`
-	Data []byte `json:"Data"`
+	Data []byte          `json:"Data"`
 }

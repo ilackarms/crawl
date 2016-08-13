@@ -1,8 +1,8 @@
 package game
 
 import (
-	"strings"
 	tl "github.com/ilackarms/termloop"
+	"strings"
 )
 
 const (

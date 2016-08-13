@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
+	"github.com/ilackarms/crawl/client"
 	"github.com/ilackarms/crawl/server"
 	"log"
-	"github.com/ilackarms/crawl/client"
 )
 
 func main() {
@@ -24,4 +24,3 @@ func main() {
 		client.Start(*name, *addr)
 	}
 }
-

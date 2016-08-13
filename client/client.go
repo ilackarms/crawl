@@ -1,12 +1,12 @@
 package client
 
 import (
-	tl "github.com/ilackarms/termloop"
-	"github.com/ilackarms/crawl/game"
-	"net"
-	"log"
-	"github.com/ilackarms/crawl/protocol"
 	"encoding/json"
+	"github.com/ilackarms/crawl/game"
+	"github.com/ilackarms/crawl/protocol"
+	tl "github.com/ilackarms/termloop"
+	"log"
+	"net"
 )
 
 var player *game.Player
@@ -58,8 +58,8 @@ func Start(name, serverAddr string) {
 					player.SetLevel(level)
 					screenWidth, screenHeight := g.Screen().Size()
 					x, y := player.Position()
-					level.SetOffset(screenWidth / 2 - x, screenHeight / 2 - y)
-					player.InputText.SetPosition(x - len(player.InputText.GetText())/2, y - 1 + screenHeight/2)
+					level.SetOffset(screenWidth/2-x, screenHeight/2-y)
+					player.InputText.SetPosition(x-len(player.InputText.GetText())/2, y-1+screenHeight/2)
 					level.RemoveEntity(playerRep)
 					level.AddEntity(player)
 					playerFound = true
@@ -73,8 +73,8 @@ func Start(name, serverAddr string) {
 			g.Screen().SetLevel(level)
 		}
 		/*
-		TODO: go to server, make sure server replies to login with the first level
-		so the client can start drawing right away and the input cycle can begin
+			TODO: go to server, make sure server replies to login with the first level
+			so the client can start drawing right away and the input cycle can begin
 		*/
 	}
 }

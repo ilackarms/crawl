@@ -1,9 +1,9 @@
 package game
 
 import (
-	"time"
-	"math/rand"
 	tl "github.com/ilackarms/termloop"
+	"math/rand"
+	"time"
 )
 
 type Point struct {
@@ -21,7 +21,6 @@ func (p *Point) Opposite() *Point {
 	}
 	return nil
 }
-
 
 func adjacents(point *Point, maze [][]rune) []*Point {
 	res := make([]*Point, 0)
@@ -43,7 +42,7 @@ func adjacents(point *Point, maze [][]rune) []*Point {
 
 func isInMaze(x, y int, w, h int) bool {
 	return x >= 0 && x < w &&
-	y >= 0 && y < h
+		y >= 0 && y < h
 }
 
 // Generates a maze using Prim's Algorithm
@@ -104,7 +103,7 @@ func NewDungeonLevel(w, h int) *Level {
 	for i, row := range maze {
 		for j, el := range row {
 			if el == '*' && !(i == w/2 && j == h/2) {
-				wall := tl.NewRectangle(i - w/2, j - h/2, 1, 1, bg)
+				wall := tl.NewRectangle(i-w/2, j-h/2, 1, 1, bg)
 				wall.Ch = '▓'
 				wall.Fg = tl.RgbTo256Color(100, 110, 100)
 				baseLevel.AddEntity(wall)

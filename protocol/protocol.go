@@ -1,12 +1,12 @@
 package protocol
 
 import (
-	"encoding/json"
 	"encoding/binary"
-	"github.com/emc-advanced-dev/pkg/errors"
-	"net"
+	"encoding/json"
 	"fmt"
+	"github.com/emc-advanced-dev/pkg/errors"
 	"log"
+	"net"
 )
 
 //Generate a Crawl TCP Protocol Packet from json object

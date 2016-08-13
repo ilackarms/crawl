@@ -1,32 +1,32 @@
 package game
 
 import (
+	"encoding/json"
+	"github.com/emc-advanced-dev/pkg/errors"
 	tl "github.com/ilackarms/termloop"
 	"log"
-	"github.com/emc-advanced-dev/pkg/errors"
-	"encoding/json"
 )
 
 //player rep is the server's representation of the player.
 //its position is meant to be updated through input commands sent to the server
 //it should not be drawn and should not do anything on a tick
 type PlayerRep struct {
-	Name           string `json:"Name"`
-	Entity         *tl.Entity `json:"Entity"`
-	PrevX          int `json:"PrevX"`
-	PrevY          int `json:"PrevY"`
-	currentCommand string `json:"-"`
+	Name           string      `json:"Name"`
+	Entity         *tl.Entity  `json:"Entity"`
+	PrevX          int         `json:"PrevX"`
+	PrevY          int         `json:"PrevY"`
+	currentCommand string      `json:"-"`
 	Iq             *inputQueue `json:"-"`
-	W              *World `json:"-"`
+	W              *World      `json:"-"`
 }
 
 func NewPlayerRep(name string, entity *tl.Entity, w *World) *PlayerRep {
 	entity.SetCell(0, 0, &tl.Cell{Fg: tl.ColorRed, Ch: '옷'})
 	return &PlayerRep{
-		Name: name,
+		Name:   name,
 		Entity: entity,
-		W: w,
-		Iq: &inputQueue{},
+		W:      w,
+		Iq:     &inputQueue{},
 	}
 }
 
@@ -81,13 +81,13 @@ func (player *PlayerRep) Tick(event tl.Event) {
 			x, y := player.Entity.Position()
 			switch event.Key { // If so, switch on the pressed key.
 			case tl.KeyArrowRight:
-				player.Entity.SetPosition(x + 1, y)
+				player.Entity.SetPosition(x+1, y)
 			case tl.KeyArrowLeft:
-				player.Entity.SetPosition(x - 1, y)
+				player.Entity.SetPosition(x-1, y)
 			case tl.KeyArrowUp:
-				player.Entity.SetPosition(x, y - 1)
+				player.Entity.SetPosition(x, y-1)
 			case tl.KeyArrowDown:
-				player.Entity.SetPosition(x, y + 1)
+				player.Entity.SetPosition(x, y+1)
 			case tl.KeyEsc:
 				player.cancelCommand()
 			default:

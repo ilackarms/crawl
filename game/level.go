@@ -1,15 +1,15 @@
 package game
 
 import (
-	tl "github.com/ilackarms/termloop"
 	"encoding/json"
+	tl "github.com/ilackarms/termloop"
 )
 
 type Level struct {
 	*tl.BaseLevel
-	PrevLevel []byte
+	PrevLevel  []byte
 	BeforeTick func(level *Level, ev tl.Event) `json:"-"`
-	AfterTick func(level *Level, ev tl.Event) `json:"-"`
+	AfterTick  func(level *Level, ev tl.Event) `json:"-"`
 }
 
 func (l *Level) Tick(ev tl.Event) {

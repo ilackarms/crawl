@@ -1,17 +1,17 @@
 package game
 
 import (
-	tl "github.com/ilackarms/termloop"
-	"net"
-	"github.com/ilackarms/crawl/protocol"
-	"github.com/emc-advanced-dev/pkg/errors"
-	"log"
 	"encoding/json"
+	"github.com/emc-advanced-dev/pkg/errors"
+	"github.com/ilackarms/crawl/protocol"
+	tl "github.com/ilackarms/termloop"
+	"log"
+	"net"
 )
 
 type Client struct {
 	PlayerRep *PlayerRep `json:"PlayerRep"`
-	conn      net.Conn `json:"-"`
+	conn      net.Conn   `json:"-"`
 }
 
 type World struct {
@@ -24,9 +24,9 @@ type World struct {
 func NewWorld() *World {
 	return &World{
 		CurrentLevel: "",
-		Levels: make(map[string]tl.Level),
-		Clients: make(map[string]*Client),
-		G: tl.NewGame(),
+		Levels:       make(map[string]tl.Level),
+		Clients:      make(map[string]*Client),
+		G:            tl.NewGame(),
 	}
 }
 
@@ -65,7 +65,7 @@ func (w *World) HandleClient(conn net.Conn) {
 			playerRep := NewPlayerRep(login.Name, tl.NewEntity(0, 0, 1, 1), w)
 			client := &Client{
 				PlayerRep: playerRep,
-				conn: conn,
+				conn:      conn,
 			}
 			clientUUID = login.UUID
 			client.PlayerRep.SetUUID(login.UUID)
@@ -112,4 +112,3 @@ func (w *World) syncLevel(level *Level, ev tl.Event) {
 		level.CacheLevel()
 	}
 }
-
