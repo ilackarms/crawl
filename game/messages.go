@@ -34,11 +34,12 @@ type LevelChangeMessage struct {
 }
 
 type levelData struct {
-	UUID      string         `json:"UUID"`
-	Drawables []drawableData `json:"Drawables"`
-	Bg        tl.Cell        `json:"Bg"`
-	Offsetx   int            `json:"Offsetx"`
-	Offsety   int            `json:"Offsety"`
+	UUID         string            `json:"UUID"`
+	Drawables    []drawableData    `json:"Drawables"`
+	Bg           tl.Cell           `json:"Bg"`
+	Offsetx      int               `json:"Offsetx"`
+	Offsety      int               `json:"Offsety"`
+	Descriptions map[string]string `json:"Descriptions"`
 }
 
 type drawableData struct {

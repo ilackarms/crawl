@@ -30,11 +30,12 @@ func SerializeLevel(level Level) (levelData, error) {
 		drawables[i] = drawable
 	}
 	ld := levelData{
-		UUID:      level.UUID,
-		Drawables: drawables,
-		Bg:        level.Bg,
-		Offsetx:   level.Offsetx,
-		Offsety:   level.Offsety,
+		UUID:         level.UUID,
+		Drawables:    drawables,
+		Bg:           level.Bg,
+		Descriptions: level.Descriptions,
+		Offsetx:      level.Offsetx,
+		Offsety:      level.Offsety,
 	}
 	return ld, nil
 }
@@ -43,7 +44,8 @@ func SerializeLevel(level Level) (levelData, error) {
 func DeserializeLevel(ld levelData) (*Level, error) {
 	//log.Printf("deserializing %v", ld)
 	level := &Level{
-		BaseLevel: tl.NewBaseLevel(ld.Bg),
+		Descriptions: ld.Descriptions,
+		BaseLevel:    tl.NewBaseLevel(ld.Bg),
 	}
 	level.Offsetx = ld.Offsetx
 	level.Offsety = ld.Offsety

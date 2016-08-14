@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/ilackarms/crawl/game"
 	"github.com/ilackarms/crawl/protocol"
 	tl "github.com/ilackarms/termloop"
@@ -44,10 +45,7 @@ func Start(name, serverAddr string) {
 				log.Fatalf("ERROR: deserializing level: %v", err)
 			}
 			var playerFound bool
-			//log.Printf("player uuid: %v", player.GetUUID())
-			//log.Printf("level data: %v", levelUpdate.LevelData)
 			for _, entity := range level.Entities {
-				//log.Printf("entity uuid: %v", entity.GetUUID())
 				//swap out player rep for player on local end
 				if entity.GetUUID() == player.GetUUID() {
 					playerRep, ok := entity.(*game.PlayerRep)
@@ -62,6 +60,9 @@ func Start(name, serverAddr string) {
 					player.InputText.SetPosition(x-len(player.InputText.GetText())/2, y-1+screenHeight/2)
 					level.RemoveEntity(playerRep)
 					level.AddEntity(player)
+					if description, ok := level.Descriptions[fmt.Sprintf("%d,%d", x, y)]; ok {
+						player.SetDescription(description)
+					}
 					playerFound = true
 					break
 				}

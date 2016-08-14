@@ -169,10 +169,7 @@ func (player *Player) Position() (int, int) {
 }
 
 func (player *Player) Collide(collision tl.Physical) {
-	// Check if it's a Rectangle we're colliding with
-	if _, ok := collision.(*tl.Rectangle); ok {
-		player.entity.SetPosition(player.prevX, player.prevY)
-	}
+	// collisions handled server side
 }
 
 func (player *Player) clientCommand(command string) bool {

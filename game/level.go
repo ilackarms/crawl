@@ -7,9 +7,17 @@ import (
 
 type Level struct {
 	*tl.BaseLevel
-	PrevLevel  []byte
-	BeforeTick func(level *Level, ev tl.Event) `json:"-"`
-	AfterTick  func(level *Level, ev tl.Event) `json:"-"`
+	Descriptions map[string]string `json:"Descriptions"` //WARNING: here's how to do it: fmt.Sprintf("%d,%d", x, y)
+	PrevLevel    []byte
+	BeforeTick   func(level *Level, ev tl.Event) `json:"-"`
+	AfterTick    func(level *Level, ev tl.Event) `json:"-"`
+}
+
+func NewLevel(baseLevel *tl.BaseLevel) *Level {
+	return &Level{
+		Descriptions: make(map[string]string),
+		BaseLevel:    baseLevel,
+	}
 }
 
 func (l *Level) Tick(ev tl.Event) {

@@ -111,7 +111,5 @@ func NewDungeonLevel(w, h int) *Level {
 		}
 	}
 
-	return &Level{
-		BaseLevel: baseLevel,
-	}
+	return NewLevel(baseLevel)
 }
