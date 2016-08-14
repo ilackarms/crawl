@@ -26,3 +26,17 @@ func (t *Trigger) TriggerPositions() map[Position]func(player *PlayerRep) {
 	}
 	return triggers
 }
+
+// Rectangular Trigger Area. does not get drawn, only for checking collisions
+func NewTriggerArea(x, y, width, height int, trigger func(player *PlayerRep)) *Trigger {
+	triggers := make(map[Position]func(player *PlayerRep))
+	for i := 0; i < width; i++ {
+		for j := 0; j < height; j++ {
+			triggers[Position{i, j}] = trigger
+		}
+	}
+	return &Trigger{
+		Entity:   tl.NewEntity(x, y, width, height),
+		Triggers: triggers,
+	}
+}
